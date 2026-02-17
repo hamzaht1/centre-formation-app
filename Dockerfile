@@ -2,6 +2,7 @@ FROM node:20-alpine AS base
 
 # --- Builder stage ---
 FROM base AS builder
+RUN apk add --no-cache openssl
 WORKDIR /app
 
 # Copy dependency manifests
@@ -30,6 +31,7 @@ RUN mkdir -p renderer/.next/standalone/renderer/.next && cp -r renderer/.next/st
 
 # --- Runner stage ---
 FROM base AS runner
+RUN apk add --no-cache openssl
 WORKDIR /app
 
 ENV NODE_ENV=production
