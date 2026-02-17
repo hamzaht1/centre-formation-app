@@ -25,9 +25,15 @@ RUN npx prisma generate
 # Build Next.js standalone
 RUN cd renderer && npm run build
 
-# Copy static assets into standalone directory (public may not exist)
-RUN if [ -d renderer/public ]; then cp -r renderer/public renderer/.next/standalone/renderer/public; fi
-RUN mkdir -p renderer/.next/standalone/renderer/.next && cp -r renderer/.next/static renderer/.next/standalone/renderer/.next/static
+# Copy static assets into standalone directory at both possible locations
+RUN if [ -d renderer/public ]; then \
+      cp -r renderer/public renderer/.next/standalone/renderer/public; \
+      cp -r renderer/public renderer/.next/standalone/public; \
+    fi
+RUN mkdir -p renderer/.next/standalone/renderer/.next && \
+    cp -r renderer/.next/static renderer/.next/standalone/renderer/.next/static
+RUN mkdir -p renderer/.next/standalone/.next && \
+    cp -r renderer/.next/static renderer/.next/standalone/.next/static
 
 # --- Runner stage ---
 FROM base AS runner
