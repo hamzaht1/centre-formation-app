@@ -24,8 +24,8 @@ RUN npx prisma generate
 # Build Next.js standalone
 RUN cd renderer && npm run build
 
-# Copy static assets into standalone directory
-RUN cp -r renderer/public renderer/.next/standalone/renderer/public
+# Copy static assets into standalone directory (public may not exist)
+RUN if [ -d renderer/public ]; then cp -r renderer/public renderer/.next/standalone/renderer/public; fi
 RUN cp -r renderer/.next/static renderer/.next/standalone/renderer/.next/static
 
 # --- Runner stage ---
