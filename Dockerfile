@@ -37,15 +37,16 @@ ENV NODE_ENV=production
 # Copy standalone server
 COPY --from=builder /app/renderer/.next/standalone ./
 
-# Copy prisma schema, migrations, client, and CLI for migrate deploy
+# Copy prisma schema, migrations, and generated client
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+
+# Install prisma CLI in runner for migrate deploy
+RUN npm install prisma@5.22.0
 
 EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD ./node_modules/.bin/prisma migrate deploy && node renderer/server.js
+CMD npx prisma migrate deploy && node renderer/server.js
