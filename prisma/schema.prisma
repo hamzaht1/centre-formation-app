@@ -1,0 +1,267 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Stagiaires (apprenants)
+model Stagiaire {
+  id              Int       @id @default(autoincrement())
+  nom             String
+  prenom          String
+  email           String?   @unique
+  telephone       String?
+  adresse         String?
+  dateNaissance   DateTime?
+  photo           String?
+  dateInscription DateTime  @default(now())
+  statut          String    @default("actif") // actif, inactif, diplome
+  contactUrgence  String?
+  telephoneUrgence String?
+  profession      String?   // Profession actuelle du stagiaire
+  niveauEtudes    String?   // Niveau d'études
+  inscriptions     Inscription[]
+  presences        Presence[]
+  paiements        Paiement[]
+  livresStagiaires LivreStagiaire[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// Formations (programmes de formation)
+model Formation {
+  id           Int       @id @default(autoincrement())
+  nom          String    // ex: "Français", "Anglais", "Allemand"
+  description  String?
+  dureeHeures  Int       // Durée totale en heures
+  prix         Float     // Prix de la formation
+  niveau       String    @default("debutant") // debutant, intermediaire, avance, A1, A2, B1, B2, etc.
+  categorie    String    @default("autre") // langue, informatique, autre
+  typePublic   String?   // kids, adultes, tout_public
+  niveauDetail String?   // Pour les sous-niveaux: a1-1, a1-2, b1-1, etc.
+  prerequis    String?   // Prérequis
+  objectifs    String?   // Objectifs pédagogiques
+  certificat   String?   // Type de certificat délivré
+  photo        String?
+  statut       String    @default("active") // active, inactive, archivee
+  sessions     Session[]
+  livres       Livre[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+// Sessions (groupes de formation avec dates)
+model Session {
+  id                  Int       @id @default(autoincrement())
+  nom                 String    // ex: "Session Janvier 2025"
+  formationId         Int
+  formation           Formation @relation(fields: [formationId], references: [id])
+  formateurPrincipalId Int?
+  formateur           Formateur? @relation(fields: [formateurPrincipalId], references: [id])
+  dateDebut           DateTime
+  dateFin             DateTime
+  horaires            String?   // ex: "Lun-Mer-Ven 9h-12h"
+  capaciteMax         Int       @default(20)
+  statut              String    @default("a_venir") // a_venir, en_cours, terminee, annulee
+  inscriptions        Inscription[]
+  presences           Presence[]
+  planning            Planning[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  salleId             Int?
+  salle               Salle?    @relation(fields: [salleId], references: [id])
+}
+
+model Formateur {
+  id              Int       @id @default(autoincrement())
+  nom             String
+  prenom          String
+  email           String?   @unique
+  telephone       String?
+  adresse         String?
+  photo           String?
+  specialites     String?
+  experience      String?
+  cv              String?
+  dateEmbauche    DateTime  @default(now())
+  statut          String    @default("actif")
+  sessions        Session[]
+  planning        Planning[]
+  disponibilites  Disponibilite[]
+  user            User?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  nom         String
+  prenom      String
+  email       String    @unique
+  password    String
+  role        String    @default("secretaire") // admin, formateur, secretaire
+  statut      String    @default("actif")
+  formateurId Int?      @unique
+  formateur   Formateur? @relation(fields: [formateurId], references: [id])
+  lastLogin   DateTime?
+  otpCodes    OtpCode[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model OtpCode {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@index([userId])
+}
+// Disponibilités des formateurs
+model Disponibilite {
+  id          Int       @id @default(autoincrement())
+  formateurId Int
+  formateur   Formateur @relation(fields: [formateurId], references: [id], onDelete: Cascade)
+  jourSemaine Int       // 0=Dimanche, 1=Lundi, 2=Mardi, 3=Mercredi, 4=Jeudi, 5=Vendredi, 6=Samedi
+  heureDebut  String    // Format: "09:00"
+  heureFin    String    // Format: "12:00"
+  typeRecurrence String @default("hebdomadaire") // hebdomadaire, mensuel, ponctuel
+  dateDebut   DateTime? // Pour les disponibilités ponctuelles ou avec date de début
+  dateFin     DateTime? // Pour les disponibilités avec date de fin
+  actif       Boolean   @default(true)
+  remarques   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+// Salles
+model Salle {
+  id          Int       @id @default(autoincrement())
+  nom         String    @unique // ex: "Salle A101"
+  capacite    Int       // Nombre de places
+  equipements String?   // Projecteur, ordinateurs, etc. (JSON ou texte)
+  batiment    String?   // Nom du bâtiment
+  etage       String?   // Étage
+  type        String    @default("cours") // cours, informatique, conference, atelier
+  statut      String    @default("disponible") // disponible, maintenance, indisponible
+  photo       String?
+  remarques   String?
+  sessions    Session[]
+  planning    Planning[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// Inscriptions (stagiaires inscrits aux sessions)
+model Inscription {
+  id              Int       @id @default(autoincrement())
+  stagiaireId     Int
+  stagiaire       Stagiaire @relation(fields: [stagiaireId], references: [id])
+  sessionId       Int
+  session         Session   @relation(fields: [sessionId], references: [id])
+  dateInscription DateTime  @default(now())
+  montantTotal    Float     // Montant total à payer
+  montantPaye     Float     @default(0) // Montant déjà payé
+  statut          String    @default("en_cours") // en_cours, terminee, abandonnee
+  noteFinale      Float?    // Note finale si applicable
+  certificatEmis  Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([stagiaireId, sessionId])
+}
+
+// Planning (séances programmées)
+model Planning {
+  id          Int       @id @default(autoincrement())
+  sessionId   Int
+  session     Session   @relation(fields: [sessionId], references: [id])
+  formateurId Int
+  formateur   Formateur @relation(fields: [formateurId], references: [id])
+  date        DateTime
+  heureDebut  String    // Format: "09:00"
+  heureFin    String    // Format: "12:00"
+  statut      String    @default("planifie") // planifie, effectue, annule
+  remarques   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  salleId     Int?
+  salle       Salle?    @relation(fields: [salleId], references: [id])
+
+  @@index([formateurId])
+}
+
+// Présences
+model Presence {
+  id          Int       @id @default(autoincrement())
+  stagiaireId Int
+  stagiaire   Stagiaire @relation(fields: [stagiaireId], references: [id], onDelete: Cascade)
+  sessionId   Int
+  session     Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  date        DateTime
+  statut      String    @default("present") // present, absent, retard, justifie
+  remarques   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([stagiaireId])
+  @@index([sessionId])
+  @@unique([stagiaireId, sessionId, date])
+}
+
+// Paiements
+model Paiement {
+  id               Int       @id @default(autoincrement())
+  stagiaireId      Int
+  stagiaire        Stagiaire @relation(fields: [stagiaireId], references: [id], onDelete: Cascade)
+  montant          Float
+  datePaiement     DateTime  @default(now())
+  modePaiement     String    @default("especes") // especes, cheque, virement, carte
+  typePaiement     String    @default("inscription") // inscription, livre
+  reference        String?   // Numéro de référence
+  remarques        String?
+  recu             String?   // Lien vers le reçu PDF
+  livresStagiaires LivreStagiaire[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([stagiaireId])
+}
+
+// Livres (manuels liés aux formations, max 2 par formation)
+model Livre {
+  id               Int       @id @default(autoincrement())
+  nom              String
+  prix             Float     @default(0)
+  quantite         Int       @default(0)
+  formationId      Int
+  formation        Formation @relation(fields: [formationId], references: [id])
+  livresStagiaires LivreStagiaire[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// Attribution de livres aux stagiaires
+model LivreStagiaire {
+  id              Int       @id @default(autoincrement())
+  livreId         Int
+  livre           Livre     @relation(fields: [livreId], references: [id])
+  stagiaireId     Int
+  stagiaire       Stagiaire @relation(fields: [stagiaireId], references: [id], onDelete: Cascade)
+  inscriptionId   Int?
+  paiementId      Int?
+  paiement        Paiement? @relation(fields: [paiementId], references: [id])
+  prixUnitaire    Float
+  dateAttribution DateTime  @default(now())
+  remarques       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([livreId, stagiaireId, inscriptionId])
+  @@index([stagiaireId])
+  @@index([livreId])
+}

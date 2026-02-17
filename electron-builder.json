@@ -1,0 +1,29 @@
+{
+  "appId": "com.centre.formation",
+  "productName": "Centre Formation",
+  "directories": {
+    "output": "dist"
+  },
+  "files": [
+    "main/**/*",
+    "renderer/.next/standalone/**/*",
+    "renderer/.next/static/**/*",
+    "renderer/public/**/*",
+    "prisma/**/*"
+  ],
+  "extraResources": [
+    { "from": "prisma/dev.db", "to": "dev.db" }
+  ],
+  "win": {
+    "target": ["nsis"],
+    "icon": "renderer/public/icon.ico"
+  },
+  "mac": {
+    "target": ["dmg"],
+    "icon": "renderer/public/icon.icns"
+  },
+  "linux": {
+    "target": ["AppImage"],
+    "icon": "renderer/public/icon.png"
+  }
+}

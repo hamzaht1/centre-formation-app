@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+/* Cacher la barre de défilement tout en gardant la fonctionnalité */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Pour Firefox */
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE et Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Optionnel : S'assurer que le body global ne scrolle pas (pour éviter double scrollbar) */
+html, body {
+  height: 100%;
+  overflow: hidden; 
+}

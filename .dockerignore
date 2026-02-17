@@ -1,0 +1,11 @@
+node_modules
+renderer/node_modules
+.next
+renderer/.next
+dist
+*.db
+*.db-journal
+.env
+.git
+.github
+.DS_Store
