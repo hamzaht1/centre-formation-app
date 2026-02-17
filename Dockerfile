@@ -15,11 +15,11 @@ RUN npm ci --ignore-scripts && cd renderer && npm ci
 # Copy source code
 COPY . .
 
-# Switch Prisma from SQLite to PostgreSQL
-RUN sed -i 's/provider = "sqlite"/provider = "postgresql"/' prisma/schema.prisma
-RUN sed -i 's/provider = "sqlite"/provider = "postgresql"/' prisma/migrations/migration_lock.toml
+# Switch Prisma from SQLite to MySQL
+RUN sed -i 's/provider = "sqlite"/provider = "mysql"/' prisma/schema.prisma
+RUN sed -i 's/provider = "sqlite"/provider = "mysql"/' prisma/migrations/migration_lock.toml
 
-# Generate Prisma client for PostgreSQL
+# Generate Prisma client for MySQL
 RUN npx prisma generate
 
 # Build Next.js standalone
