@@ -50,4 +50,7 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-CMD npx prisma db push --skip-generate && node renderer/server.js
+CMD npx prisma db push --skip-generate && \
+    if [ -f renderer/server.js ]; then node renderer/server.js; \
+    elif [ -f server.js ]; then node server.js; \
+    else echo "server.js not found" && find /app -name server.js && exit 1; fi
