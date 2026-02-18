@@ -85,9 +85,9 @@ export default function Presences() {
   return (
     <Layout>
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Présences</h1>
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Link
               href="/presences/nouveau"
               className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium transition-colors"
@@ -218,87 +218,82 @@ export default function Presences() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Table desktop */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full min-w-max">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Stagiaire
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Session / Formation
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Statut
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Remarques
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stagiaire</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Session / Formation</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Remarques</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredPresences.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
-                      Aucune présence trouvée
-                    </td>
+                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">Aucune présence trouvée</td>
                   </tr>
                 ) : (
                   filteredPresences.map((p) => (
                     <tr key={p.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">
-                          {p.stagiaire?.prenom} {p.stagiaire?.nom}
-                        </div>
+                        <div className="font-medium text-gray-900">{p.stagiaire?.prenom} {p.stagiaire?.nom}</div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="font-medium">{p.session?.formation?.nom || '—'}</div>
                         <div className="text-sm text-gray-600">{p.session?.nom || '—'}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                        {new Date(p.date).toLocaleDateString('fr-TN')}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">{new Date(p.date).toLocaleDateString('fr-TN')}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            p.statut === 'present'
-                              ? 'bg-green-100 text-green-800'
-                              : p.statut === 'absent'
-                              ? 'bg-red-100 text-red-800'
-                              : p.statut === 'retard'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-purple-100 text-purple-800'
-                          }`}
-                        >
-                          {p.statut}
-                        </span>
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          p.statut === 'present' ? 'bg-green-100 text-green-800'
+                            : p.statut === 'absent' ? 'bg-red-100 text-red-800'
+                            : p.statut === 'retard' ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-purple-100 text-purple-800'
+                        }`}>{p.statut}</span>
                       </td>
                       <td className="px-6 py-4 text-gray-600">{p.remarques || '—'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link href={`/presences/${p.id}`} className="text-blue-600 hover:text-blue-900 mr-4">
-                          Voir
-                        </Link>
-                        <Link href={`/presences/${p.id}`} className="text-green-600 hover:text-green-900 mr-4">
-                          Modifier
-                        </Link>
-                        <button
-                          onClick={() => deletePresence(p.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                        <Link href={`/presences/${p.id}`} className="text-blue-600 hover:text-blue-900 mr-4">Voir</Link>
+                        <Link href={`/presences/${p.id}`} className="text-green-600 hover:text-green-900 mr-4">Modifier</Link>
+                        <button onClick={() => deletePresence(p.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Cartes mobile */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredPresences.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">Aucune présence trouvée</div>
+            ) : (
+              filteredPresences.map((p) => (
+                <div key={p.id} className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-gray-900">{p.stagiaire?.prenom} {p.stagiaire?.nom}</span>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      p.statut === 'present' ? 'bg-green-100 text-green-800'
+                        : p.statut === 'absent' ? 'bg-red-100 text-red-800'
+                        : p.statut === 'retard' ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-purple-100 text-purple-800'
+                    }`}>{p.statut}</span>
+                  </div>
+                  <div className="text-sm text-gray-500">{p.session?.formation?.nom || '—'} · {p.session?.nom || '—'}</div>
+                  <div className="text-sm text-gray-500">{new Date(p.date).toLocaleDateString('fr-TN')}</div>
+                  <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                    <Link href={`/presences/${p.id}`} className="text-blue-600 hover:text-blue-900">Voir</Link>
+                    <Link href={`/presences/${p.id}`} className="text-green-600 hover:text-green-900">Modifier</Link>
+                    <button onClick={() => deletePresence(p.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

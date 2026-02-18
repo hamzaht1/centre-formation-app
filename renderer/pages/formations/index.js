@@ -101,7 +101,7 @@ export default function Formations() {
   return (
     <Layout>
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Formations</h1>
           <Link
             href="/formations/nouveau"
@@ -215,7 +215,8 @@ export default function Formations() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Table desktop */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
@@ -252,7 +253,7 @@ export default function Formations() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          formation.categorie === 'langue' 
+                          formation.categorie === 'langue'
                             ? 'bg-blue-100 text-blue-800'
                             : formation.categorie === 'informatique'
                             ? 'bg-green-100 text-green-800'
@@ -270,10 +271,10 @@ export default function Formations() {
                         )}
                       </td>
                       <td className="px-6 py-4 text-gray-600">
-                        {formation.typePublic === 'kids' 
-                          ? 'Enfants' 
-                          : formation.typePublic === 'adultes' 
-                          ? 'Adultes' 
+                        {formation.typePublic === 'kids'
+                          ? 'Enfants'
+                          : formation.typePublic === 'adultes'
+                          ? 'Adultes'
                           : 'Tout public'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-gray-600">
@@ -315,6 +316,49 @@ export default function Formations() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Cartes mobile */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredFormations.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">Aucune formation trouvée</div>
+            ) : (
+              filteredFormations.map((formation) => (
+                <div key={formation.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-semibold text-gray-900">{getFormationLabel(formation)}</span>
+                    <span
+                      className={`shrink-0 px-2 py-1 text-xs font-semibold rounded-full ${
+                        formation.statut === 'active'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}
+                    >
+                      {formation.statut}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-sm">
+                    <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                      formation.categorie === 'langue'
+                        ? 'bg-blue-100 text-blue-800'
+                        : formation.categorie === 'informatique'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-purple-100 text-purple-800'
+                    }`}>
+                      {formation.categorie}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {formation.prix.toLocaleString('fr-TN')} TND · {formation.dureeHeures}h · {formation._count?.sessions || 0} sessions
+                  </div>
+                  <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                    <Link href={`/formations/${formation.id}`} className="text-blue-600 hover:text-blue-900">Voir</Link>
+                    <Link href={`/formations/${formation.id}/modifier`} className="text-green-600 hover:text-green-900">Modifier</Link>
+                    <button onClick={() => deleteFormation(formation.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

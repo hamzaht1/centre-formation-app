@@ -128,7 +128,7 @@ export default function Planning() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Planning des séances</h1>
           <div className="flex items-center gap-3">
-            <div className="flex bg-gray-100 p-1 rounded-lg">
+            <div className="hidden lg:flex bg-gray-100 p-1 rounded-lg">
               <button
                 onClick={() => setViewMode('week')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'week' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
@@ -198,7 +198,7 @@ export default function Planning() {
           </div>
         </div>
 
-        {/* Vue Semaine */}
+        {/* Vue Semaine - desktop only */}
         {viewMode === 'week' && (() => {
           const weekDays = getWeekDays();
           const dayNames = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
@@ -206,7 +206,7 @@ export default function Planning() {
           const weekEnd = weekDays[6];
 
           return (
-            <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+            <div className="hidden lg:block bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
               <div className="flex justify-between items-center p-4 border-b bg-gradient-to-r from-gray-50 to-gray-100">
                 <h2 className="text-xl font-bold text-gray-800">
                   {weekStart.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} — {weekEnd.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
@@ -281,91 +281,86 @@ export default function Planning() {
           );
         })()}
 
-        {/* Vue Liste */}
-        {viewMode === 'list' && (
-        <div className="bg-white rounded-lg shadow">
-          <div className="overflow-x-auto">
+        {/* Vue Liste - desktop table + mobile cards (shown when list mode OR on mobile always) */}
+        {(viewMode === 'list' || true) && (
+        <div className={`bg-white rounded-lg shadow ${viewMode === 'week' ? 'lg:hidden' : ''}`}>
+          {/* Table desktop */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full min-w-max">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Heure
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Formation / Session
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Formateur
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Salle
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Statut
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Heure</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Formation / Session</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Formateur</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Salle</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredPlannings.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
-                      Aucune séance trouvée
-                    </td>
+                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500">Aucune séance trouvée</td>
                   </tr>
                 ) : (
                   filteredPlannings.map((p) => (
                     <tr key={p.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                        {new Date(p.date).toLocaleDateString('fr-TN')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                        {p.heureDebut} → {p.heureFin}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">{new Date(p.date).toLocaleDateString('fr-TN')}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">{p.heureDebut} → {p.heureFin}</td>
                       <td className="px-6 py-4">
-                        <div className="font-medium">
-                          {p.session?.formation?.nom || '—'}
-                        </div>
+                        <div className="font-medium">{p.session?.formation?.nom || '—'}</div>
                         <div className="text-sm text-gray-600">{p.session?.nom || '—'}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {p.formateur ? `${p.formateur.prenom} ${p.formateur.nom}` : '—'}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">{p.formateur ? `${p.formateur.prenom} ${p.formateur.nom}` : '—'}</td>
                       <td className="px-6 py-4">{p.salle?.nom || '—'}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            p.statut === 'effectue'
-                              ? 'bg-green-100 text-green-800'
-                              : p.statut === 'annule'
-                              ? 'bg-red-100 text-red-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}
-                        >
-                          {p.statut}
-                        </span>
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          p.statut === 'effectue' ? 'bg-green-100 text-green-800'
+                            : p.statut === 'annule' ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>{p.statut}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link href={`/sessions/${p.sessionId}/planning`} className="text-blue-600 hover:text-blue-900 mr-4">
-                          Voir
-                        </Link>
-                        <button
-                          onClick={() => deletePlanning(p.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                        <Link href={`/sessions/${p.sessionId}/planning`} className="text-blue-600 hover:text-blue-900 mr-4">Voir</Link>
+                        <button onClick={() => deletePlanning(p.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Cartes mobile */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredPlannings.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">Aucune séance trouvée</div>
+            ) : (
+              filteredPlannings.map((p) => (
+                <div key={p.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-semibold text-gray-900">{p.session?.formation?.nom || '—'}</span>
+                    <span className={`shrink-0 px-2 py-1 text-xs font-semibold rounded-full ${
+                      p.statut === 'effectue' ? 'bg-green-100 text-green-800'
+                        : p.statut === 'annule' ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}>{p.statut}</span>
+                  </div>
+                  <div className="text-sm text-gray-500">{p.session?.nom || '—'}</div>
+                  <div className="text-sm text-gray-500">
+                    {new Date(p.date).toLocaleDateString('fr-TN')} · {p.heureDebut} → {p.heureFin}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {p.formateur ? `${p.formateur.prenom} ${p.formateur.nom}` : '—'} {p.salle ? `· ${p.salle.nom}` : ''}
+                  </div>
+                  <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                    <Link href={`/sessions/${p.sessionId}/planning`} className="text-blue-600 hover:text-blue-900">Voir</Link>
+                    <button onClick={() => deletePlanning(p.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
         )}

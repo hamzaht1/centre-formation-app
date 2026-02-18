@@ -75,7 +75,7 @@ export default function Salles() {
   return (
     <Layout>
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Salles</h1>
           <Link
             href="/salles/nouveau"
@@ -129,39 +129,24 @@ export default function Salles() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Table desktop */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full min-w-max">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Nom
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Bâtiment / Étage
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Capacité
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Équipements
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Statut
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bâtiment / Étage</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Capacité</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Équipements</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredSalles.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
-                      Aucune salle trouvée
-                    </td>
+                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500">Aucune salle trouvée</td>
                   </tr>
                 ) : (
                   filteredSalles.map((salle) => (
@@ -169,58 +154,58 @@ export default function Salles() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-medium text-gray-900">{salle.nom}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {salle.batiment || '-'} {salle.etage ? `/ ${salle.etage}` : ''}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {salle.capacite} places
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{salle.batiment || '-'} {salle.etage ? `/ ${salle.etage}` : ''}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{salle.capacite} places</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {salle.type}
-                        </span>
+                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{salle.type}</span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                        {salle.equipements || '-'}
-                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{salle.equipements || '-'}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            salle.statut === 'disponible'
-                              ? 'bg-green-100 text-green-800'
-                              : salle.statut === 'maintenance'
-                              ? 'bg-orange-100 text-orange-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {salle.statut}
-                        </span>
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          salle.statut === 'disponible' ? 'bg-green-100 text-green-800'
+                            : salle.statut === 'maintenance' ? 'bg-orange-100 text-orange-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>{salle.statut}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link
-                          href={`/salles/${salle.id}`}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          Voir
-                        </Link>
-                        <Link
-                          href={`/salles/${salle.id}/modifier`}
-                          className="text-green-600 hover:text-green-900 mr-4"
-                        >
-                          Modifier
-                        </Link>
-                        <button
-                          onClick={() => deleteSalle(salle.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                        <Link href={`/salles/${salle.id}`} className="text-blue-600 hover:text-blue-900 mr-4">Voir</Link>
+                        <Link href={`/salles/${salle.id}/modifier`} className="text-green-600 hover:text-green-900 mr-4">Modifier</Link>
+                        <button onClick={() => deleteSalle(salle.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Cartes mobile */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredSalles.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">Aucune salle trouvée</div>
+            ) : (
+              filteredSalles.map((salle) => (
+                <div key={salle.id} className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-gray-900">{salle.nom}</span>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      salle.statut === 'disponible' ? 'bg-green-100 text-green-800'
+                        : salle.statut === 'maintenance' ? 'bg-orange-100 text-orange-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>{salle.statut}</span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {salle.capacite} places · <span className="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">{salle.type}</span>
+                  </div>
+                  {salle.batiment && <div className="text-sm text-gray-500">{salle.batiment} {salle.etage ? `/ ${salle.etage}` : ''}</div>}
+                  <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                    <Link href={`/salles/${salle.id}`} className="text-blue-600 hover:text-blue-900">Voir</Link>
+                    <Link href={`/salles/${salle.id}/modifier`} className="text-green-600 hover:text-green-900">Modifier</Link>
+                    <button onClick={() => deleteSalle(salle.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

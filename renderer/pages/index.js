@@ -216,7 +216,7 @@ function SessionCard({ session }) {
       <div className="group flex items-center justify-between p-4 rounded-lg border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-md hover:border-indigo-100 transition-all cursor-pointer">
         
         <div className="flex-1 min-w-0 mr-4">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <h3 className="text-base font-bold text-slate-800 truncate group-hover:text-indigo-600 transition-colors">
               {session.nom}
             </h3>
@@ -253,7 +253,7 @@ function SessionCard({ session }) {
           </div>
         </div>
 
-        <div className="hidden sm:block">
+        <div>
           <StatusBadge status={session.statut} />
         </div>
       </div>

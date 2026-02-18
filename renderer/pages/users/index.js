@@ -138,7 +138,7 @@ export default function Users() {
     <Layout>
       <div className="p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Utilisateurs</h1>
             <p className="text-gray-500">Gestion des comptes utilisateurs</p>
@@ -159,56 +159,67 @@ export default function Users() {
           <div className="text-center py-12 text-gray-500">Chargement...</div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Derniere connexion</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">
-                      {user.prenom} {user.nom}
-                    </td>
-                    <td className="px-6 py-4 text-gray-500">{user.email}</td>
-                    <td className="px-6 py-4">{roleBadge(user.role)}</td>
-                    <td className="px-6 py-4">{statutBadge(user.statut)}</td>
-                    <td className="px-6 py-4 text-gray-500 text-sm">
-                      {user.lastLogin
-                        ? new Date(user.lastLogin).toLocaleString('fr-FR')
-                        : 'Jamais'}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleEdit(user)}
-                        className="text-blue-600 hover:text-blue-800 mr-3"
-                      >
-                        Modifier
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        Supprimer
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {users.length === 0 && (
+            {/* Table desktop */}
+            <div className="hidden lg:block">
+              <table className="w-full">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                      Aucun utilisateur
-                    </td>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Derniere connexion</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 font-medium text-gray-900">{user.prenom} {user.nom}</td>
+                      <td className="px-6 py-4 text-gray-500">{user.email}</td>
+                      <td className="px-6 py-4">{roleBadge(user.role)}</td>
+                      <td className="px-6 py-4">{statutBadge(user.statut)}</td>
+                      <td className="px-6 py-4 text-gray-500 text-sm">
+                        {user.lastLogin ? new Date(user.lastLogin).toLocaleString('fr-FR') : 'Jamais'}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button onClick={() => handleEdit(user)} className="text-blue-600 hover:text-blue-800 mr-3">Modifier</button>
+                        <button onClick={() => handleDelete(user)} className="text-red-600 hover:text-red-800">Supprimer</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {users.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">Aucun utilisateur</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Cartes mobile */}
+            <div className="lg:hidden divide-y divide-gray-200">
+              {users.length === 0 ? (
+                <div className="px-4 py-8 text-center text-gray-500">Aucun utilisateur</div>
+              ) : (
+                users.map((user) => (
+                  <div key={user.id} className="p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-gray-900">{user.prenom} {user.nom}</span>
+                      <div className="flex gap-2">
+                        {roleBadge(user.role)}
+                        {statutBadge(user.statut)}
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-500">{user.email}</div>
+                    <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                      <button onClick={() => handleEdit(user)} className="text-blue-600 hover:text-blue-800">Modifier</button>
+                      <button onClick={() => handleDelete(user)} className="text-red-600 hover:text-red-800">Supprimer</button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

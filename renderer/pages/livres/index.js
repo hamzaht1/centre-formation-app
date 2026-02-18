@@ -89,7 +89,7 @@ export default function Livres() {
   return (
     <Layout>
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Livres</h1>
           <Link
             href="/livres/nouveau"
@@ -174,33 +174,22 @@ export default function Livres() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Table desktop */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full min-w-max">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Nom
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Prix
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Stock
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Formation
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prix</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Formation</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredLivres.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
-                      Aucun livre trouvé
-                    </td>
+                    <td colSpan={5} className="px-6 py-10 text-center text-gray-500">Aucun livre trouvé</td>
                   </tr>
                 ) : (
                   filteredLivres.map((livre) => (
@@ -208,50 +197,55 @@ export default function Livres() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-medium text-gray-900">{livre.nom}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {livre.prix.toLocaleString('fr-TN')} TND
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{livre.prix.toLocaleString('fr-TN')} TND</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          livre.quantite > 5
-                            ? 'bg-green-100 text-green-800'
-                            : livre.quantite > 0
-                            ? 'bg-orange-100 text-orange-800'
+                          livre.quantite > 5 ? 'bg-green-100 text-green-800'
+                            : livre.quantite > 0 ? 'bg-orange-100 text-orange-800'
                             : 'bg-red-100 text-red-800'
-                        }`}>
-                          {livre.quantite}
-                        </span>
+                        }`}>{livre.quantite}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {livre.formation?.nom || '-'}
-                        </span>
+                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{livre.formation?.nom || '-'}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link
-                          href={`/livres/${livre.id}`}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          Voir
-                        </Link>
-                        <Link
-                          href={`/livres/${livre.id}/modifier`}
-                          className="text-green-600 hover:text-green-900 mr-4"
-                        >
-                          Modifier
-                        </Link>
-                        <button
-                          onClick={() => deleteLivre(livre.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                        <Link href={`/livres/${livre.id}`} className="text-blue-600 hover:text-blue-900 mr-4">Voir</Link>
+                        <Link href={`/livres/${livre.id}/modifier`} className="text-green-600 hover:text-green-900 mr-4">Modifier</Link>
+                        <button onClick={() => deleteLivre(livre.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Cartes mobile */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredLivres.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">Aucun livre trouvé</div>
+            ) : (
+              filteredLivres.map((livre) => (
+                <div key={livre.id} className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-gray-900">{livre.nom}</span>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      livre.quantite > 5 ? 'bg-green-100 text-green-800'
+                        : livre.quantite > 0 ? 'bg-orange-100 text-orange-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>Stock: {livre.quantite}</span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {livre.prix.toLocaleString('fr-TN')} TND · {livre.formation?.nom || '-'}
+                  </div>
+                  <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                    <Link href={`/livres/${livre.id}`} className="text-blue-600 hover:text-blue-900">Voir</Link>
+                    <Link href={`/livres/${livre.id}/modifier`} className="text-green-600 hover:text-green-900">Modifier</Link>
+                    <button onClick={() => deleteLivre(livre.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

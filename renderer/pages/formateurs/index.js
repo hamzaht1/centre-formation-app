@@ -65,7 +65,7 @@ export default function Formateurs() {
   return (
     <Layout>
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Formateurs</h1>
           <Link
             href="/formateurs/nouveau"
@@ -161,90 +161,75 @@ export default function Formateurs() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Table desktop */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full min-w-max">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Nom complet
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Spécialités
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Sessions
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Statut
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nom complet</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Spécialités</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sessions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredFormateurs.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
-                      Aucun formateur trouvé
-                    </td>
+                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">Aucun formateur trouvé</td>
                   </tr>
                 ) : (
                   filteredFormateurs.map((formateur) => (
                     <tr key={formateur.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">
-                          {formateur.prenom} {formateur.nom}
-                        </div>
+                        <div className="font-medium text-gray-900">{formateur.prenom} {formateur.nom}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formateur.email || '-'}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
-                        {formateur.specialites || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formateur._count?.sessions || 0}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formateur.email || '-'}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{formateur.specialites || '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formateur._count?.sessions || 0}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            formateur.statut === 'actif'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
-                          {formateur.statut}
-                        </span>
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          formateur.statut === 'actif' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>{formateur.statut}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link
-                          href={`/formateurs/${formateur.id}`}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          Voir
-                        </Link>
-                        <Link
-                          href={`/formateurs/${formateur.id}/modifier`}
-                          className="text-green-600 hover:text-green-900 mr-4"
-                        >
-                          Modifier
-                        </Link>
-                        <button
-                          onClick={() => deleteFormateur(formateur.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                        <Link href={`/formateurs/${formateur.id}`} className="text-blue-600 hover:text-blue-900 mr-4">Voir</Link>
+                        <Link href={`/formateurs/${formateur.id}/modifier`} className="text-green-600 hover:text-green-900 mr-4">Modifier</Link>
+                        <button onClick={() => deleteFormateur(formateur.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Cartes mobile */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredFormateurs.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">Aucun formateur trouvé</div>
+            ) : (
+              filteredFormateurs.map((formateur) => (
+                <div key={formateur.id} className="p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-gray-900">{formateur.prenom} {formateur.nom}</span>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      formateur.statut === 'actif' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                    }`}>{formateur.statut}</span>
+                  </div>
+                  <div className="text-sm text-gray-500">{formateur.email || '-'}</div>
+                  <div className="text-sm text-gray-500">
+                    {formateur.specialites || 'Aucune spécialité'} · {formateur._count?.sessions || 0} sessions
+                  </div>
+                  <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                    <Link href={`/formateurs/${formateur.id}`} className="text-blue-600 hover:text-blue-900">Voir</Link>
+                    <Link href={`/formateurs/${formateur.id}/modifier`} className="text-green-600 hover:text-green-900">Modifier</Link>
+                    <button onClick={() => deleteFormateur(formateur.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

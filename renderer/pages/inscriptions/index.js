@@ -67,7 +67,7 @@ export default function Inscriptions() {
   return (
     <Layout>
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Inscriptions</h1>
           <Link
             href="/inscriptions/nouveau"
@@ -171,103 +171,86 @@ export default function Inscriptions() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Table desktop */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="w-full min-w-max">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Stagiaire
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Formation / Session
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Date inscription
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Montant total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Payé
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Statut
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stagiaire</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Formation / Session</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date inscription</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Montant total</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payé</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredInscriptions.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500">
-                      Aucune inscription trouvée
-                    </td>
+                    <td colSpan={7} className="px-6 py-10 text-center text-gray-500">Aucune inscription trouvée</td>
                   </tr>
                 ) : (
                   filteredInscriptions.map((inscription) => (
                     <tr key={inscription.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">
-                          {inscription.stagiaire?.prenom} {inscription.stagiaire?.nom}
-                        </div>
+                        <div className="font-medium text-gray-900">{inscription.stagiaire?.prenom} {inscription.stagiaire?.nom}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-medium">
-                          {inscription.session?.formation?.nom || '—'}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {inscription.session?.nom || '—'}
-                        </div>
+                        <div className="font-medium">{inscription.session?.formation?.nom || '—'}</div>
+                        <div className="text-sm text-gray-600">{inscription.session?.nom || '—'}</div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                        {new Date(inscription.dateInscription).toLocaleDateString('fr-TN')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                        {inscription.montantTotal?.toLocaleString('fr-TN')} TND
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                        {inscription.montantPaye?.toLocaleString('fr-TN') || '0'} TND
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">{new Date(inscription.dateInscription).toLocaleDateString('fr-TN')}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">{inscription.montantTotal?.toLocaleString('fr-TN')} TND</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">{inscription.montantPaye?.toLocaleString('fr-TN') || '0'} TND</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            inscription.statut === 'en_cours'
-                              ? 'bg-green-100 text-green-800'
-                              : inscription.statut === 'terminee'
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {inscription.statut}
-                        </span>
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          inscription.statut === 'en_cours' ? 'bg-green-100 text-green-800'
+                            : inscription.statut === 'terminee' ? 'bg-blue-100 text-blue-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>{inscription.statut}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link
-                          href={`/inscriptions/${inscription.id}`}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          Voir
-                        </Link>
-                        <Link
-                          href={`/inscriptions/${inscription.id}/modifier`}
-                          className="text-green-600 hover:text-green-900 mr-4"
-                        >
-                          Modifier
-                        </Link>
-                        <button
-                          onClick={() => deleteInscription(inscription.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                        <Link href={`/inscriptions/${inscription.id}`} className="text-blue-600 hover:text-blue-900 mr-4">Voir</Link>
+                        <Link href={`/inscriptions/${inscription.id}/modifier`} className="text-green-600 hover:text-green-900 mr-4">Modifier</Link>
+                        <button onClick={() => deleteInscription(inscription.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Cartes mobile */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredInscriptions.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">Aucune inscription trouvée</div>
+            ) : (
+              filteredInscriptions.map((inscription) => (
+                <div key={inscription.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-semibold text-gray-900">{inscription.stagiaire?.prenom} {inscription.stagiaire?.nom}</span>
+                    <span className={`shrink-0 px-2 py-1 text-xs font-semibold rounded-full ${
+                      inscription.statut === 'en_cours' ? 'bg-green-100 text-green-800'
+                        : inscription.statut === 'terminee' ? 'bg-blue-100 text-blue-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>{inscription.statut}</span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {inscription.session?.formation?.nom || '—'} · {inscription.session?.nom || '—'}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {inscription.montantTotal?.toLocaleString('fr-TN')} TND · Payé: {inscription.montantPaye?.toLocaleString('fr-TN') || '0'} TND
+                  </div>
+                  <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                    <Link href={`/inscriptions/${inscription.id}`} className="text-blue-600 hover:text-blue-900">Voir</Link>
+                    <Link href={`/inscriptions/${inscription.id}/modifier`} className="text-green-600 hover:text-green-900">Modifier</Link>
+                    <button onClick={() => deleteInscription(inscription.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

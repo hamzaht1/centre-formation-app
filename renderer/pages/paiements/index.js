@@ -87,7 +87,7 @@ export default function Paiements() {
   return (
     <Layout>
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">Gestion des Paiements</h1>
           <Link
             href="/paiements/nouveau"
@@ -173,87 +173,77 @@ export default function Paiements() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Table desktop */}
+          <div className="hidden lg:block overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Stagiaire
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Montant
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Mode
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Référence
-                  </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Stagiaire</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Mode</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Référence</th>
+                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredPaiements.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                      Aucun paiement trouvé
-                    </td>
+                    <td colSpan={7} className="px-6 py-12 text-center text-gray-500">Aucun paiement trouvé</td>
                   </tr>
                 ) : (
                   filteredPaiements.map((p) => (
                     <tr key={p.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">
-                          {p.stagiaire?.prenom} {p.stagiaire?.nom}
-                        </div>
+                        <div className="font-medium text-gray-900">{p.stagiaire?.prenom} {p.stagiaire?.nom}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          p.typePaiement === 'livre'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-indigo-100 text-indigo-800'
-                        }`}>
-                          {p.typePaiement === 'livre' ? 'Livre' : 'Inscription'}
-                        </span>
+                          p.typePaiement === 'livre' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'
+                        }`}>{p.typePaiement === 'livre' ? 'Livre' : 'Inscription'}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">
-                        {p.montant.toLocaleString('fr-TN')} DT
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">
-                        {new Date(p.datePaiement).toLocaleDateString('fr-TN')}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">{p.montant.toLocaleString('fr-TN')} DT</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">{new Date(p.datePaiement).toLocaleDateString('fr-TN')}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                          {p.modePaiement}
-                        </span>
+                        <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{p.modePaiement}</span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                        {p.reference || '—'}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-600">{p.reference || '—'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <Link href={`/paiements/${p.id}`} className="text-blue-600 hover:text-blue-900 mr-4">
-                          Voir
-                        </Link>
-                        <button
-                          onClick={() => deletePaiement(p.id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Supprimer
-                        </button>
+                        <Link href={`/paiements/${p.id}`} className="text-blue-600 hover:text-blue-900 mr-4">Voir</Link>
+                        <button onClick={() => deletePaiement(p.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Cartes mobile */}
+          <div className="lg:hidden divide-y divide-gray-200">
+            {filteredPaiements.length === 0 ? (
+              <div className="px-4 py-8 text-center text-gray-500">Aucun paiement trouvé</div>
+            ) : (
+              filteredPaiements.map((p) => (
+                <div key={p.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-semibold text-gray-900">{p.stagiaire?.prenom} {p.stagiaire?.nom}</span>
+                    <span className={`shrink-0 px-2 py-1 text-xs font-semibold rounded-full ${
+                      p.typePaiement === 'livre' ? 'bg-amber-100 text-amber-800' : 'bg-indigo-100 text-indigo-800'
+                    }`}>{p.typePaiement === 'livre' ? 'Livre' : 'Inscription'}</span>
+                  </div>
+                  <div className="text-sm text-gray-900 font-medium">{p.montant.toLocaleString('fr-TN')} DT</div>
+                  <div className="text-sm text-gray-500">
+                    {new Date(p.datePaiement).toLocaleDateString('fr-TN')} · {p.modePaiement} {p.reference ? `· ${p.reference}` : ''}
+                  </div>
+                  <div className="flex justify-end gap-4 pt-2 border-t text-sm font-medium">
+                    <Link href={`/paiements/${p.id}`} className="text-blue-600 hover:text-blue-900">Voir</Link>
+                    <button onClick={() => deletePaiement(p.id)} className="text-red-600 hover:text-red-900">Supprimer</button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
