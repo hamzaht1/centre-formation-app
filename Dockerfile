@@ -25,15 +25,11 @@ RUN npx prisma generate
 # Build Next.js standalone
 RUN cd renderer && npm run build
 
-# Copy static assets into standalone directory at both possible locations
-RUN if [ -d renderer/public ]; then \
-      cp -r renderer/public renderer/.next/standalone/renderer/public; \
-      cp -r renderer/public renderer/.next/standalone/public; \
-    fi
-RUN mkdir -p renderer/.next/standalone/renderer/.next && \
-    cp -r renderer/.next/static renderer/.next/standalone/renderer/.next/static
-RUN mkdir -p renderer/.next/standalone/.next && \
-    cp -r renderer/.next/static renderer/.next/standalone/.next/static
+# Debug: show standalone structure
+RUN find renderer/.next/standalone -name "server.js" && \
+    ls renderer/.next/standalone/ && \
+    echo "---" && \
+    ls renderer/.next/standalone/renderer/ 2>/dev/null || true
 
 # --- Runner stage ---
 FROM base AS runner
@@ -44,12 +40,20 @@ ENV NODE_ENV=production
 # Copy standalone server
 COPY --from=builder /app/renderer/.next/standalone ./
 
-# Copy prisma schema, migrations, and generated client
+# Copy static files directly into both possible locations
+COPY --from=builder /app/renderer/.next/static ./renderer/.next/static
+COPY --from=builder /app/renderer/.next/static ./.next/static
+
+# Copy public if it exists (use a wildcard trick to avoid failure)
+COPY --from=builder /app/renderer/public* ./renderer/public
+COPY --from=builder /app/renderer/public* ./public
+
+# Copy prisma schema and generated client
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Install prisma CLI in runner for migrate deploy
+# Install prisma CLI in runner for db push
 RUN npm install prisma@5.22.0
 
 EXPOSE 3000
