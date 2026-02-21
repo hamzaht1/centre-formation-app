@@ -1,12 +1,12 @@
 /**
- * Post-build script: copies static assets and public files into the
- * Next.js standalone output so the packaged Electron app is self-contained.
+ * Post-build script: copies static assets, public files, and Prisma client
+ * into the Next.js standalone output so the packaged Electron app is self-contained.
  */
 const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const standaloneRenderer = path.join(root, 'renderer', '.next', 'standalone', 'renderer');
+const standaloneDir = path.join(root, 'renderer', '.next', 'standalone');
 
 function copyDirSync(src, dest) {
   if (!fs.existsSync(src)) return;
@@ -22,16 +22,27 @@ function copyDirSync(src, dest) {
   }
 }
 
-// Copy renderer/public → standalone/renderer/public
+// Copy renderer/public → standalone/public
 const publicSrc = path.join(root, 'renderer', 'public');
-const publicDest = path.join(standaloneRenderer, 'public');
+const publicDest = path.join(standaloneDir, 'public');
 console.log('Copying public/ into standalone...');
 copyDirSync(publicSrc, publicDest);
 
-// Copy renderer/.next/static → standalone/renderer/.next/static
+// Copy renderer/.next/static → standalone/.next/static
 const staticSrc = path.join(root, 'renderer', '.next', 'static');
-const staticDest = path.join(standaloneRenderer, '.next', 'static');
+const staticDest = path.join(standaloneDir, '.next', 'static');
 console.log('Copying .next/static/ into standalone...');
 copyDirSync(staticSrc, staticDest);
+
+// Copy Prisma client from root node_modules into standalone
+const prismaClientSrc = path.join(root, 'node_modules', '.prisma');
+const prismaClientDest = path.join(standaloneDir, 'node_modules', '.prisma');
+console.log('Copying .prisma/ client into standalone...');
+copyDirSync(prismaClientSrc, prismaClientDest);
+
+const prismaCoreSrc = path.join(root, 'node_modules', '@prisma');
+const prismaCoreDest = path.join(standaloneDir, 'node_modules', '@prisma');
+console.log('Copying @prisma/ into standalone...');
+copyDirSync(prismaCoreSrc, prismaCoreDest);
 
 console.log('Standalone assets copied successfully.');

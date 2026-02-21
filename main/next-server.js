@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const { fork } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const net = require('net');
@@ -20,77 +20,89 @@ function setupDatabase(userDataPath) {
   const dbPath = path.join(userDataPath, 'centre-formation.db');
 
   if (!fs.existsSync(dbPath)) {
-    // In packaged app, extraResources are in process.resourcesPath
     const sourceDb = path.join(process.resourcesPath, 'dev.db');
     if (fs.existsSync(sourceDb)) {
       fs.copyFileSync(sourceDb, dbPath);
       console.log('Database copied to:', dbPath);
     } else {
-      console.log('No seed database found, Prisma will create one.');
+      console.log('No seed database found.');
     }
   }
 
   return dbPath;
 }
 
+function findServerJs() {
+  const appRoot = path.join(__dirname, '..');
+
+  const candidates = [
+    path.join(appRoot, 'renderer', '.next', 'standalone', 'server.js'),
+    path.join(appRoot, 'renderer', '.next', 'standalone', 'renderer', 'server.js'),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  throw new Error(`server.js not found. Tried:\n${candidates.join('\n')}`);
+}
+
 async function startNextServer(userDataPath) {
   const dbPath = setupDatabase(userDataPath);
   const port = await getFreePort();
-
-  // The standalone server.js is at renderer/.next/standalone/renderer/server.js
-  // relative to the app root (which is app.getAppPath() in packaged mode)
-  const appRoot = path.join(__dirname, '..');
-  const serverJs = path.join(appRoot, 'renderer', '.next', 'standalone', 'renderer', 'server.js');
-
-  if (!fs.existsSync(serverJs)) {
-    throw new Error(`Next.js standalone server not found at: ${serverJs}`);
-  }
+  const serverJs = findServerJs();
 
   return new Promise((resolve, reject) => {
     const env = {
       ...process.env,
       NODE_ENV: 'production',
       PORT: String(port),
-      HOSTNAME: '127.0.0.1',
+      HOSTNAME: '0.0.0.0',
       DATABASE_URL: `file:${dbPath}`,
     };
 
-    serverProcess = spawn(process.execPath, [serverJs], {
-      env,
+    serverProcess = fork(serverJs, [], {
       cwd: path.dirname(serverJs),
-      stdio: ['ignore', 'pipe', 'pipe'],
+      env,
+      silent: true,
     });
 
     let started = false;
+    let errorOutput = '';
 
-    const onData = (data) => {
+    serverProcess.stdout.on('data', (data) => {
       const output = data.toString();
       console.log('[Next.js]', output);
       if (!started && (output.includes('Ready') || output.includes('started') || output.includes(`${port}`))) {
         started = true;
         resolve(port);
       }
-    };
+    });
 
-    serverProcess.stdout.on('data', onData);
-    serverProcess.stderr.on('data', onData);
+    serverProcess.stderr.on('data', (data) => {
+      const msg = data.toString();
+      errorOutput += msg;
+      console.error('[Next.js Error]', msg);
+    });
 
     serverProcess.on('error', (err) => {
       if (!started) reject(err);
     });
 
     serverProcess.on('exit', (code) => {
-      if (!started) reject(new Error(`Server exited with code ${code}`));
+      if (!started) reject(new Error(`Server exited with code ${code}\nPath: ${serverJs}\nError: ${errorOutput}`));
       serverProcess = null;
     });
 
-    // Fallback: if no "Ready" message detected, just wait and check
+    // Fallback timeout
     setTimeout(() => {
       if (!started) {
         started = true;
         resolve(port);
       }
-    }, 5000);
+    }, 8000);
   });
 }
 

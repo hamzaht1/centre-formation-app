@@ -5,14 +5,7 @@
     "output": "dist"
   },
   "files": [
-    "main/**/*",
-    "renderer/.next/standalone/**/*",
-    "renderer/.next/static/**/*",
-    "renderer/public/**/*",
-    "prisma/**/*"
-  ],
-  "extraResources": [
-    { "from": "prisma/dev.db", "to": "dev.db" }
+    "main/**/*"
   ],
   "win": {
     "target": ["nsis"],

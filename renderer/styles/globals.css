@@ -29,5 +29,24 @@ body {
 /* Optionnel : S'assurer que le body global ne scrolle pas (pour éviter double scrollbar) */
 html, body {
   height: 100%;
-  overflow: hidden; 
+  overflow: hidden;
+}
+
+/* Slide-up animation for mobile "Plus" panel */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Safe area padding for devices with home indicator */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
 }

@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/router';
 import useAuthStore from '../../lib/useAuth';
 
-export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }) {
+export default function Sidebar({ isCollapsed, setIsCollapsed }) {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const role = user?.role || 'secretaire';
+  const [showMore, setShowMore] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -28,6 +31,15 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
   ];
 
   const menuItems = allMenuItems.filter((item) => item.roles.includes(role));
+
+  // Mobile: first 4 items in bottom bar, rest in "Plus" panel
+  const mobileMainItems = menuItems.slice(0, 4);
+  const mobileMoreItems = menuItems.slice(4);
+
+  // User initials
+  const initials = user
+    ? `${(user.prenom || '')[0] || ''}${(user.nom || '')[0] || ''}`.toUpperCase()
+    : '?';
 
   const icons = {
     dashboard: (
@@ -61,27 +73,39 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
     home: <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />,
     'chevron-left': <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />,
     'chevron-right': <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />,
-    'x-mark': <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />,
+    'ellipsis-horizontal': <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />,
   };
+
+  const renderIcon = (iconName, className = 'w-5 h-5') => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      {icons[iconName] || icons['dashboard']}
+    </svg>
+  );
 
   return (
     <>
+      {/* ==================== DESKTOP SIDEBAR ==================== */}
       <aside
         className={`
-          hidden lg:flex flex-col h-screen fixed top-0 left-0 bg-slate-900 border-r border-slate-800 transition-all duration-300 z-40
+          hidden lg:flex flex-col h-screen fixed top-0 left-0
+          bg-slate-900 border-r border-slate-800/50
+          transition-all duration-300 z-40
           ${isCollapsed ? 'w-20' : 'w-64'}
         `}
       >
-        <div className="h-20 flex items-center justify-center border-b border-slate-800 bg-slate-950">
-          {isCollapsed ? (
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">C</div>
-          ) : (
-            <h1 className="text-xl font-bold text-white tracking-wide">Centre Formation</h1>
-          )}
+        {/* Logo */}
+        <div className={`flex items-center justify-center border-b border-slate-800/50 ${isCollapsed ? 'py-3' : 'py-4'}`}>
+          <Image
+            src="/images/logo.png"
+            alt="ILOM School"
+            width={isCollapsed ? 40 : 140}
+            height={isCollapsed ? 40 : 50}
+            className="object-contain"
+            priority
+          />
         </div>
 
-        {/* AJOUT DE LA CLASSE 'no-scrollbar' ICI */}
-        <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1 no-scrollbar">
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5 no-scrollbar">
           {menuItems.map((item) => {
             const isActive = router.pathname === item.href;
             return (
@@ -90,110 +114,134 @@ export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed
                 href={item.href}
                 title={isCollapsed ? item.name : ''}
                 className={`
-                  flex items-center p-3 rounded-lg transition-all duration-200 group relative
-                  ${isActive 
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' 
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                  flex items-center px-3 py-2.5 rounded-r-lg transition-all duration-200
+                  border-l-[3px]
+                  ${isActive
+                    ? 'bg-slate-800 text-white border-blue-500'
+                    : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 border-transparent'
                   }
-                  ${isCollapsed ? 'justify-center' : 'justify-start'}
+                  ${isCollapsed ? 'justify-center' : ''}
                 `}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={`w-6 h-6 ${isCollapsed ? '' : 'mr-3'}`}>
-                  {icons[item.icon] || icons['dashboard']}
-                </svg>
+                {renderIcon(item.icon, `w-5 h-5 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`)}
                 {!isCollapsed && (
                   <span className="text-sm font-medium whitespace-nowrap">{item.name}</span>
-                )}
-                {!isCollapsed && isActive && (
-                   <div className="absolute right-2 w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                 )}
               </Link>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-800 space-y-2">
+        <div className="p-3 border-t border-slate-800/50 space-y-1">
+          {/* User info */}
+          <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'px-3'} py-2`}>
+            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+              {initials}
+            </div>
+            {!isCollapsed && (
+              <div className="ml-3 min-w-0">
+                <p className="text-sm font-medium text-slate-200 truncate">{user?.prenom || 'Utilisateur'}</p>
+                <p className="text-xs text-slate-500 capitalize">{role}</p>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center p-2 rounded-lg text-slate-400 hover:bg-red-600/20 hover:text-red-400 transition-colors ${isCollapsed ? 'justify-center' : ''}`}
+            className={`w-full flex items-center px-3 py-2 rounded-lg text-slate-400 hover:bg-red-600/20 hover:text-red-400 transition-colors ${isCollapsed ? 'justify-center' : ''}`}
             title="Se déconnecter"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 flex-shrink-0">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
             </svg>
             {!isCollapsed && <span className="ml-3 text-sm font-medium">Déconnexion</span>}
           </button>
+
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-full flex items-center justify-center p-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
-            title={isCollapsed ? "Déplier le menu" : "Réduire le menu"}
+            className="w-full flex items-center justify-center px-3 py-2 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors"
+            title={isCollapsed ? 'Déplier le menu' : 'Réduire le menu'}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              {isCollapsed ? icons['chevron-right'] : icons['chevron-left']}
-            </svg>
+            {renderIcon(isCollapsed ? 'chevron-right' : 'chevron-left', 'w-5 h-5')}
             {!isCollapsed && <span className="ml-3 text-sm font-medium">Réduire</span>}
           </button>
         </div>
       </aside>
 
-      <div
-        className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 transform transition-transform duration-300 lg:hidden
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}
-      >
-        <div className="h-20 flex items-center justify-between px-6 border-b border-slate-800">
-          <h1 className="text-xl font-bold text-white">Centre Formation</h1>
-          <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              {icons['x-mark']}
-            </svg>
-          </button>
-        </div>
-
-        <nav className="mt-6 px-3 space-y-1 no-scrollbar overflow-y-auto max-h-[calc(100vh-160px)]">
-          {menuItems.map((item) => {
+      {/* ==================== MOBILE BOTTOM NAV ==================== */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-slate-900 border-t border-slate-800/50 safe-bottom">
+        <div className="flex items-center justify-around h-16">
+          {mobileMainItems.map((item) => {
             const isActive = router.pathname === item.href;
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                onClick={() => setIsOpen(false)}
-                className={`
-                  flex items-center px-3 py-3 rounded-lg transition-colors
-                  ${isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                  }
-                `}
+                className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+                  isActive ? 'text-blue-500' : 'text-slate-400 active:text-slate-200'
+                }`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 mr-3">
-                  {icons[item.icon] || icons['dashboard']}
-                </svg>
-                <span className="text-sm font-medium">{item.name}</span>
+                {renderIcon(item.icon, 'w-5 h-5')}
+                <span className="text-[10px] mt-1 font-medium">{item.name}</span>
               </Link>
             );
           })}
-        </nav>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-800">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center px-3 py-3 rounded-lg text-slate-400 hover:bg-red-600/20 hover:text-red-400 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 mr-3">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-            </svg>
-            <span className="text-sm font-medium">Déconnexion</span>
-          </button>
+          {mobileMoreItems.length > 0 && (
+            <button
+              onClick={() => setShowMore(!showMore)}
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+                showMore ? 'text-blue-500' : 'text-slate-400 active:text-slate-200'
+              }`}
+            >
+              {renderIcon('ellipsis-horizontal', 'w-5 h-5')}
+              <span className="text-[10px] mt-1 font-medium">Plus</span>
+            </button>
+          )}
         </div>
-      </div>
+      </nav>
 
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-sm transition-opacity"
-          onClick={() => setIsOpen(false)}
-        ></div>
+      {/* ==================== MOBILE "PLUS" SLIDE-UP PANEL ==================== */}
+      {showMore && (
+        <>
+          <div
+            className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowMore(false)}
+          />
+          <div className="lg:hidden fixed bottom-16 left-0 right-0 z-50 bg-slate-900 border-t border-slate-800/50 rounded-t-2xl max-h-[60vh] overflow-y-auto animate-slide-up">
+            <div className="w-10 h-1 bg-slate-700 rounded-full mx-auto mt-3" />
+            <div className="p-4 space-y-1">
+              {mobileMoreItems.map((item) => {
+                const isActive = router.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setShowMore(false)}
+                    className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-slate-800 text-white'
+                        : 'text-slate-300 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    {renderIcon(item.icon, 'w-5 h-5 mr-3 flex-shrink-0')}
+                    <span className="text-sm font-medium">{item.name}</span>
+                  </Link>
+                );
+              })}
+              <div className="border-t border-slate-800/50 mt-2 pt-2">
+                <button
+                  onClick={() => { setShowMore(false); handleLogout(); }}
+                  className="w-full flex items-center px-4 py-3 rounded-lg text-slate-400 hover:bg-red-600/20 hover:text-red-400 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-3 flex-shrink-0">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                  </svg>
+                  <span className="text-sm font-medium">Déconnexion</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </>
   );
