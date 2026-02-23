@@ -11,6 +11,13 @@
     "target": ["nsis"],
     "icon": "renderer/public/icon.ico"
   },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Centre Formation"
+  },
   "mac": {
     "target": ["dmg"],
     "icon": "renderer/public/icon.icns"
